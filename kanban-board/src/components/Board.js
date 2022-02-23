@@ -41,26 +41,64 @@ export const Board = () => {
       return;
     }
 
-    const column = columnList.find(
+    const startColumn = columnList.find(
       (column) => column.id === source.droppableId
     );
-    const task = column.taskIdList.find((task) => task === draggableId);
-    const newTaskList = Array.from(column.taskIdList);
-    newTaskList.splice(source.index, 1);
-    newTaskList.splice(destination.index, 0, task);
 
-    const newColumn = {
-      ...column,
-      taskIdList: newTaskList,
-    };
+    const finishColumn = columnList.find(
+      (column) => column.id === destination.droppableId
+    );
 
-    const index = columnList.findIndex((column) => column.id === newColumn.id);
-    const newColumnList = Array.from(columnList);
-    newColumnList.splice(index, 1);
-    newColumnList.splice(index, 0, newColumn);
+    if (startColumn === finishColumn) {
+      const task = startColumn.taskIdList.find((task) => task === draggableId);
+      const newTaskList = Array.from(startColumn.taskIdList);
+      newTaskList.splice(source.index, 1);
+      newTaskList.splice(destination.index, 0, task);
 
-    setColumnList(newColumnList);
-    // Update API
+      const newColumn = {
+        ...startColumn,
+        taskIdList: newTaskList,
+      };
+
+      const index = columnList.findIndex(
+        (column) => column.id === newColumn.id
+      );
+      const newColumnList = Array.from(columnList);
+      newColumnList.splice(index, 1);
+      newColumnList.splice(index, 0, newColumn);
+
+      setColumnList(newColumnList);
+      // Update API
+    } else {
+      const task = startColumn.taskIdList.find((task) => task === draggableId);
+      const newTaskListStart = Array.from(startColumn.taskIdList);
+      newTaskListStart.splice(source.index, 1);
+      const newColumnStart = {
+        ...startColumn,
+        taskIdList: newTaskListStart,
+      };
+
+      const newTaskListFinish = Array.from(finishColumn.taskIdList);
+      newTaskListFinish.splice(destination.index, 0, task);
+      const newColumnFinish = {
+        ...finishColumn,
+        taskIdList: newTaskListFinish,
+      };
+
+      const indexStart = columnList.findIndex(
+        (column) => column.id === newColumnStart.id
+      );
+      const indexFinish = columnList.findIndex(
+        (column) => column.id === newColumnFinish.id
+      );
+      const newColumnList = Array.from(columnList);
+      newColumnList.splice(indexStart, 1);
+      newColumnList.splice(indexStart, 0, newColumnStart);
+      newColumnList.splice(indexFinish, 1);
+      newColumnList.splice(indexFinish, 0, newColumnFinish);
+
+      setColumnList(newColumnList);
+    }
   };
 
   if (loading) {
