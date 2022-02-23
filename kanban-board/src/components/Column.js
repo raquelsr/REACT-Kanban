@@ -1,8 +1,16 @@
 import { Task } from './Task';
 import { Box } from '@mui/system';
 import { InputContainer } from './InputContainer';
+import { Droppable } from 'react-beautiful-dnd';
 
-export const Column = ({ column }) => {
+export const Column = ({ column, taskList }) => {
+  const taskValues = column.taskIdList.reduce((value, taskId) => {
+    const task = taskList.find((task) => task.id === taskId);
+    if (task) value.push(task);
+    return value;
+  }, []);
+
+  const dataColumn = { ...column, tasks: taskValues };
   return (
     <Box
       sx={{
@@ -17,11 +25,16 @@ export const Column = ({ column }) => {
       }}
     >
       <h3>{column.title}</h3>
-      {column.taskList.map((task) => (
-        <div key={task.id}>
-          <Task task={task} />
-        </div>
-      ))}
+      <Droppable droppableId={column.id}>
+        {(provided) => (
+          <div ref={provided.innerRef} {...provided.droppableProps}>
+            {dataColumn.tasks.map((task, index) => (
+              <Task key={task.id} task={task} index={index} />
+            ))}
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
       <InputContainer />
     </Box>
   );
