@@ -6,7 +6,6 @@ import { Droppable } from 'react-beautiful-dnd';
 import { InputContainer } from './InputContainer';
 import { TaskService } from '../services/TaskService';
 import { ColumnService } from '../services/ColumnService';
-const API_URL = 'http://localhost:3001';
 
 export const Board = () => {
   const [loading, setLoading] = useState(true);
@@ -25,63 +24,138 @@ export const Board = () => {
             }
           );
         })
-
         .catch((e) => console.log(e));
     }
     fetchData();
   }, []);
 
+  const addNewColumn = async (title) => {
+    try {
+      const response = await ColumnService.post({
+        id: new Date().getTime().toString(),
+        title,
+        taskIdList: [],
+      });
+      const data = await response.json();
+      setColumnList(columnList.concat(data));
+      // check for error response
+      if (!response.ok) {
+        // get error message from body or default to response status
+        const error = (data && data.message) || response.status;
+        return Promise.reject(error);
+      }
+    } catch (e) {
+      console.log('errro');
+    }
+  };
+
+  const addNewTask = async (title, type, columnId) => {
+    try {
+      const response = await TaskService.post({
+        id: new Date().getTime().toString(),
+        title,
+      });
+      const dataTask = await response.json();
+      const updateColumn = columnList.find((column) => column.id === columnId);
+
+      const newTaskIdList = updateColumn.taskIdList.concat(dataTask.id);
+
+      const response2 = await ColumnService.patch(updateColumn.id, {
+        taskIdList: newTaskIdList,
+      });
+
+      const columnFinish = await response2.json();
+      const indexUpdate = columnList.findIndex(
+        (column) => columnFinish.id === column.id
+      );
+      const newColumnList = [...columnList]; //ES6
+      newColumnList.splice(indexUpdate, 1);
+      newColumnList.splice(indexUpdate, 0, columnFinish);
+      setTaskList(taskList.concat(dataTask));
+
+      setColumnList(newColumnList);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   const add = async (title, type, columnId) => {
     if (title && title != '') {
       if (type === 'column') {
-        try {
-          const response = await ColumnService.post({
-            id: new Date().getTime().toString(),
-            title,
-            taskIdList: [],
-          });
-          const data = await response.json();
-          setColumnList(columnList.concat(data));
-          // check for error response
-          if (!response.ok) {
-            // get error message from body or default to response status
-            const error = (data && data.message) || response.status;
-            return Promise.reject(error);
-          }
-        } catch (e) {
-          console.log('errro');
-        }
+        addNewColumn(title);
       } else {
-        try {
-          const response = await TaskService.post({
-            id: new Date().getTime().toString(),
-            title,
-          });
-          const dataTask = await response.json();
-          const updateColumn = columnList.find(
-            (column) => column.id === columnId
-          );
-
-          const newTaskIdList = updateColumn.taskIdList.concat(dataTask.id);
-
-          const response2 = await ColumnService.patch(updateColumn.id, {
-            taskIdList: newTaskIdList,
-          });
-
-          const columnFinish = await response2.json();
-          const indexUpdate = columnList.findIndex(
-            (column) => columnFinish.id === column.id
-          );
-          const newColumnList = [...columnList]; //ES6
-          newColumnList.splice(indexUpdate, 1);
-          newColumnList.splice(indexUpdate, 0, columnFinish);
-          setTaskList(taskList.concat(dataTask));
-
-          setColumnList(newColumnList);
-        } catch (e) {
-          console.log(e);
-        }
+        addNewTask(title, columnId);
       }
+    }
+  };
+
+  const onDragColumn = ({ destination, source, draggableId }) => {
+    const column = columnList.find((column) => column.id === draggableId);
+    const newColumnList = [...columnList]; //ES6
+    newColumnList.splice(source.index, 1);
+    newColumnList.splice(destination.index, 0, column);
+
+    setColumnList(newColumnList);
+  };
+
+  const onDragTask = ({ destination, source, draggableId }) => {
+    const startColumn = columnList.find(
+      (column) => column.id === source.droppableId
+    );
+
+    const finishColumn = columnList.find(
+      (column) => column.id === destination.droppableId
+    );
+
+    if (startColumn === finishColumn) {
+      const task = startColumn.taskIdList.find((task) => task === draggableId);
+      const newTaskList = Array.from(startColumn.taskIdList);
+      newTaskList.splice(source.index, 1);
+      newTaskList.splice(destination.index, 0, task);
+
+      const newColumn = {
+        ...startColumn,
+        taskIdList: newTaskList,
+      };
+
+      const index = columnList.findIndex(
+        (column) => column.id === newColumn.id
+      );
+      const newColumnList = Array.from(columnList);
+      newColumnList.splice(index, 1);
+      newColumnList.splice(index, 0, newColumn);
+
+      setColumnList(newColumnList);
+      // Update API
+    } else {
+      const task = startColumn.taskIdList.find((task) => task === draggableId);
+      const newTaskListStart = Array.from(startColumn.taskIdList);
+      newTaskListStart.splice(source.index, 1);
+      const newColumnStart = {
+        ...startColumn,
+        taskIdList: newTaskListStart,
+      };
+
+      const newTaskListFinish = Array.from(finishColumn.taskIdList);
+      newTaskListFinish.splice(destination.index, 0, task);
+      const newColumnFinish = {
+        ...finishColumn,
+        taskIdList: newTaskListFinish,
+      };
+
+      const indexStart = columnList.findIndex(
+        (column) => column.id === newColumnStart.id
+      );
+      const indexFinish = columnList.findIndex(
+        (column) => column.id === newColumnFinish.id
+      );
+      const newColumnList = Array.from(columnList);
+      newColumnList.splice(indexStart, 1);
+      newColumnList.splice(indexStart, 0, newColumnStart);
+      newColumnList.splice(indexFinish, 1);
+      newColumnList.splice(indexFinish, 0, newColumnFinish);
+
+      setColumnList(newColumnList);
     }
   };
 
@@ -99,75 +173,9 @@ export const Board = () => {
     }
 
     if (type === 'column') {
-      const column = columnList.find((column) => column.id === draggableId);
-      const newColumnList = [...columnList]; //ES6
-      newColumnList.splice(source.index, 1);
-      newColumnList.splice(destination.index, 0, column);
-
-      setColumnList(newColumnList);
+      onDragColumn(result);
     } else {
-      const startColumn = columnList.find(
-        (column) => column.id === source.droppableId
-      );
-
-      const finishColumn = columnList.find(
-        (column) => column.id === destination.droppableId
-      );
-
-      if (startColumn === finishColumn) {
-        const task = startColumn.taskIdList.find(
-          (task) => task === draggableId
-        );
-        const newTaskList = Array.from(startColumn.taskIdList);
-        newTaskList.splice(source.index, 1);
-        newTaskList.splice(destination.index, 0, task);
-
-        const newColumn = {
-          ...startColumn,
-          taskIdList: newTaskList,
-        };
-
-        const index = columnList.findIndex(
-          (column) => column.id === newColumn.id
-        );
-        const newColumnList = Array.from(columnList);
-        newColumnList.splice(index, 1);
-        newColumnList.splice(index, 0, newColumn);
-
-        setColumnList(newColumnList);
-        // Update API
-      } else {
-        const task = startColumn.taskIdList.find(
-          (task) => task === draggableId
-        );
-        const newTaskListStart = Array.from(startColumn.taskIdList);
-        newTaskListStart.splice(source.index, 1);
-        const newColumnStart = {
-          ...startColumn,
-          taskIdList: newTaskListStart,
-        };
-
-        const newTaskListFinish = Array.from(finishColumn.taskIdList);
-        newTaskListFinish.splice(destination.index, 0, task);
-        const newColumnFinish = {
-          ...finishColumn,
-          taskIdList: newTaskListFinish,
-        };
-
-        const indexStart = columnList.findIndex(
-          (column) => column.id === newColumnStart.id
-        );
-        const indexFinish = columnList.findIndex(
-          (column) => column.id === newColumnFinish.id
-        );
-        const newColumnList = Array.from(columnList);
-        newColumnList.splice(indexStart, 1);
-        newColumnList.splice(indexStart, 0, newColumnStart);
-        newColumnList.splice(indexFinish, 1);
-        newColumnList.splice(indexFinish, 0, newColumnFinish);
-
-        setColumnList(newColumnList);
-      }
+      onDragTask(result);
     }
   };
 
