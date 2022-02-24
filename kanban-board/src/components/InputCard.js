@@ -1,25 +1,15 @@
 import React, { useState } from 'react';
 import { Button } from '@mui/material';
-import { ButtonGroup } from '@mui/material';
 import { TextField } from '@mui/material';
 import { Box } from '@mui/system';
 
-export const InputCard = ({ setOpen, listId, type }) => {
+export const InputCard = ({ setOpen, type, add, columnId }) => {
   const [title, setTitle] = useState('');
 
   const addMoreCard = (e) => alert('Add more card');
+
   const handleOnChange = (e) => {
     setTitle(e.target.value);
-  };
-
-  const handleBtnConfirm = () => {
-    if (type === 'card') {
-      addMoreCard(title, listId);
-    } else {
-      addMoreCard(title);
-    }
-    setOpen(false);
-    setTitle('');
   };
 
   return (
@@ -32,10 +22,10 @@ export const InputCard = ({ setOpen, listId, type }) => {
       }}
     >
       <TextField
-        onChange={handleOnChange}
         placeholder="Enter text..."
         color="primary"
         autoFocus
+        onChange={handleOnChange}
         sx={{
           background: '#FFF',
           borderRadius: 2,
@@ -53,7 +43,7 @@ export const InputCard = ({ setOpen, listId, type }) => {
           size="small"
           variant="contained"
           sx={{ width: '70px' }}
-          onClick={handleBtnConfirm}
+          onClick={() => add(title, type, columnId)}
         >
           Add
         </Button>

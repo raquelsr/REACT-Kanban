@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { Column } from './Column';
 import { DragDropContext } from 'react-beautiful-dnd';
 import { Droppable } from 'react-beautiful-dnd';
+import { InputContainer } from './InputContainer';
+import { TaskService } from '../services/TaskService';
 
 const API_URL = 'http://localhost:3001';
 
@@ -13,21 +15,95 @@ export const Board = () => {
 
   useEffect(() => {
     async function fetchData() {
-      Promise.all([fetch(`${API_URL}/columns`), fetch(`${API_URL}/tasks`)])
-        .then((responses) =>
+      Promise.all([fetch(`${API_URL}/columns`), TaskService.getAll()])
+        .then((responses) => {
           Promise.all(responses.map((response) => response.json())).then(
             (data) => {
               setColumnList(data[0]);
               setTaskList(data[1]);
               setLoading(false);
             }
-          )
-        )
+          );
+        })
 
         .catch((e) => console.log(e));
     }
     fetchData();
   }, []);
+
+  const add = async (title, type, columnId) => {
+    if (title && title != '') {
+      if (type === 'column') {
+        const request = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: new Date().getTime().toString(),
+            title,
+            taskIdList: [],
+          }),
+        };
+        try {
+          const response = await fetch(
+            'http://localhost:3001/columns',
+            request
+          );
+          const data = await response.json();
+          setColumnList(columnList.concat(data));
+          // check for error response
+          if (!response.ok) {
+            // get error message from body or default to response status
+            const error = (data && data.message) || response.status;
+            return Promise.reject(error);
+          }
+        } catch (e) {
+          console.log('errro');
+        }
+      } else {
+        const request = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: new Date().getTime().toString(),
+            title,
+          }),
+        };
+        try {
+          const response = await fetch('http://localhost:3001/tasks', request);
+          const dataTask = await response.json();
+          const updateColumn = columnList.find(
+            (column) => column.id === columnId
+          );
+
+          const newTaskIdList = updateColumn.taskIdList.concat(dataTask.id);
+          const request2 = {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              taskIdList: newTaskIdList,
+            }),
+          };
+
+          const response2 = await fetch(
+            'http://localhost:3001/columns/' + updateColumn.id,
+            request2
+          );
+          const columnFinish = await response2.json();
+          const indexUpdate = columnList.findIndex(
+            (column) => columnFinish.id === column.id
+          );
+          const newColumnList = [...columnList]; //ES6
+          newColumnList.splice(indexUpdate, 1);
+          newColumnList.splice(indexUpdate, 0, columnFinish);
+          setTaskList(taskList.concat(dataTask));
+
+          setColumnList(newColumnList);
+        } catch (e) {
+          console.log(e);
+        }
+      }
+    }
+  };
 
   const onDragEnd = (result) => {
     const { destination, source, draggableId, type } = result;
@@ -147,8 +223,10 @@ export const Board = () => {
                     column={column}
                     taskList={taskList}
                     index={index}
+                    add={add}
                   />
                 ))}
+                <InputContainer type="column" add={add} />
                 {provided.placeholder}
               </Box>
             </div>

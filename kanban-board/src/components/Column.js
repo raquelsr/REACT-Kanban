@@ -3,7 +3,7 @@ import { Box } from '@mui/system';
 import { InputContainer } from './InputContainer';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 
-export const Column = ({ column, taskList, index }) => {
+export const Column = ({ column, taskList, index, add }) => {
   const taskValues = column.taskIdList.reduce((value, taskId) => {
     const task = taskList.find((task) => task.id === taskId);
     if (task) value.push(task);
@@ -55,7 +55,7 @@ export const Column = ({ column, taskList, index }) => {
                 </Box>
               )}
             </Droppable>
-            <InputContainer />
+            <InputContainer type="task" add={add} columnId={column.id} />
           </Box>
         </div>
       )}
