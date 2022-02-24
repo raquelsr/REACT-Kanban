@@ -124,7 +124,10 @@ export const Board = () => {
       sx={{
         textAlign: 'center',
         '& h1': {
-          color: 'green',
+          color: '#2C423F',
+          fontSize: '3rem',
+          textDecoration: 'underline',
+          fontWeight: 500,
         },
       }}
     >

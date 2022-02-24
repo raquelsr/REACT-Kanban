@@ -32,23 +32,35 @@ export const InputCard = ({ setOpen, listId, type }) => {
       }}
     >
       <TextField
-        id="outlined-basic"
-        variant="outlined"
         onChange={handleOnChange}
         placeholder="Enter text..."
-        color="success"
+        color="primary"
         autoFocus
-        sx={{ background: 'white' }}
+        sx={{
+          background: '#FFF',
+          borderRadius: 2,
+        }}
       />
-      <ButtonGroup
-        size="small"
-        disableElevation
-        variant="contained"
-        aria-label="outlined primary button group"
-        sx={{ justifyContent: 'center' }}
+      <Box
+        sx={{
+          justifyContent: 'space-between',
+          textAlign: 'center',
+          display: 'flex',
+          mx: 2.5,
+        }}
       >
-        <Button onClick={handleBtnConfirm}>Add</Button>
         <Button
+          size="small"
+          variant="contained"
+          sx={{ width: '70px' }}
+          onClick={handleBtnConfirm}
+        >
+          Add
+        </Button>
+        <Button
+          variant="outlined"
+          sx={{ background: '#FFF', width: '70px' }}
+          size="small"
           onClick={() => {
             setTitle('');
             setOpen(false);
@@ -56,7 +68,7 @@ export const InputCard = ({ setOpen, listId, type }) => {
         >
           Cancel
         </Button>
-      </ButtonGroup>
+      </Box>
     </Box>
   );
 };

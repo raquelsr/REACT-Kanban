@@ -21,13 +21,17 @@ export const Column = ({ column, taskList, index }) => {
         >
           <Box
             sx={{
-              background: '#E5E7E9',
-              px: 3,
+              background: '#ebecf0',
+              px: 2,
               py: 1,
               borderRadius: 3,
-              border: '1px solid black',
+              border: '1px solid #2C423F',
               '& h3': {
                 textTransform: 'uppercase',
+                color: '#2C423F',
+                fontSize: '1.5rem',
+                fontWeight: 900,
+                mt: 1,
               },
             }}
           >
@@ -41,6 +45,7 @@ export const Column = ({ column, taskList, index }) => {
                     display: 'flex',
                     justifyContent: 'space-around',
                     flexDirection: 'column',
+                    mb: 3,
                   }}
                 >
                   {dataColumn.tasks.map((task, index) => (

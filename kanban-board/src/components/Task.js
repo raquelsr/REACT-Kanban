@@ -4,7 +4,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Draggable } from 'react-beautiful-dnd';
 import { Box } from '@mui/system';
-import { Button } from '@mui/material';
+import { Button, IconButton } from '@mui/material';
 
 export const Task = ({ task, index }) => {
   return (
@@ -18,16 +18,27 @@ export const Task = ({ task, index }) => {
           <Box
             sx={{
               background: 'white',
-              border: '2px solid blue',
+              border: '1px solid #2C423F',
               borderRadius: 2,
             }}
             style={{ margin: '15px' }}
           >
-            <div style={{ display: 'flex' }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                padding: '0 6px 0 12px',
+              }}
+            >
               <p>{task.title}</p>
-              <Button>
+              <IconButton
+                color="primary"
+                size="small"
+                sx={{ mr: 0, pr: 0 }}
+                edge="end"
+              >
                 <DeleteIcon></DeleteIcon>
-              </Button>
+              </IconButton>
             </div>
           </Box>
         </div>
