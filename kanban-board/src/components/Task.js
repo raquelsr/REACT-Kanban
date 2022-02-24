@@ -3,6 +3,8 @@ import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Draggable } from 'react-beautiful-dnd';
+import { Box } from '@mui/system';
+import { Button } from '@mui/material';
 
 export const Task = ({ task, index }) => {
   return (
@@ -13,21 +15,21 @@ export const Task = ({ task, index }) => {
           {...provided.dragHandleProps}
           {...provided.draggableProps}
         >
-          <TextField
-            id="outlined-basic"
-            variant="outlined"
-            placeholder="Insert text.."
-            value={task.title}
-            margin="dense"
-            sx={{ background: 'white' }}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <DeleteIcon></DeleteIcon>
-                </InputAdornment>
-              ),
+          <Box
+            sx={{
+              background: 'white',
+              border: '2px solid blue',
+              borderRadius: 2,
             }}
-          />
+            style={{ margin: '15px' }}
+          >
+            <div style={{ display: 'flex' }}>
+              <p>{task.title}</p>
+              <Button>
+                <DeleteIcon></DeleteIcon>
+              </Button>
+            </div>
+          </Box>
         </div>
       )}
     </Draggable>

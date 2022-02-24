@@ -34,12 +34,20 @@ export const Column = ({ column, taskList, index }) => {
             <h3>{column.title}</h3>
             <Droppable droppableId={column.id} type="task">
               {(provided) => (
-                <div ref={provided.innerRef} {...provided.droppableProps}>
+                <Box
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-around',
+                    flexDirection: 'column',
+                  }}
+                >
                   {dataColumn.tasks.map((task, index) => (
                     <Task key={task.id} task={task} index={index} />
                   ))}
                   {provided.placeholder}
-                </div>
+                </Box>
               )}
             </Droppable>
             <InputContainer />
