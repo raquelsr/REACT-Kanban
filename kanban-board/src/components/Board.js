@@ -5,7 +5,7 @@ import { DragDropContext } from 'react-beautiful-dnd';
 import { Droppable } from 'react-beautiful-dnd';
 import { InputContainer } from './InputContainer';
 import { TaskService } from '../services/TaskService';
-
+import { ColumnService } from '../services/ColumnService';
 const API_URL = 'http://localhost:3001';
 
 export const Board = () => {
@@ -15,7 +15,7 @@ export const Board = () => {
 
   useEffect(() => {
     async function fetchData() {
-      Promise.all([fetch(`${API_URL}/columns`), TaskService.getAll()])
+      Promise.all([ColumnService.getAll(), TaskService.getAll()])
         .then((responses) => {
           Promise.all(responses.map((response) => response.json())).then(
             (data) => {
@@ -34,20 +34,12 @@ export const Board = () => {
   const add = async (title, type, columnId) => {
     if (title && title != '') {
       if (type === 'column') {
-        const request = {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+        try {
+          const response = await ColumnService.post({
             id: new Date().getTime().toString(),
             title,
             taskIdList: [],
-          }),
-        };
-        try {
-          const response = await fetch(
-            'http://localhost:3001/columns',
-            request
-          );
+          });
           const data = await response.json();
           setColumnList(columnList.concat(data));
           // check for error response
@@ -60,34 +52,22 @@ export const Board = () => {
           console.log('errro');
         }
       } else {
-        const request = {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+        try {
+          const response = await TaskService.post({
             id: new Date().getTime().toString(),
             title,
-          }),
-        };
-        try {
-          const response = await fetch('http://localhost:3001/tasks', request);
+          });
           const dataTask = await response.json();
           const updateColumn = columnList.find(
             (column) => column.id === columnId
           );
 
           const newTaskIdList = updateColumn.taskIdList.concat(dataTask.id);
-          const request2 = {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              taskIdList: newTaskIdList,
-            }),
-          };
 
-          const response2 = await fetch(
-            'http://localhost:3001/columns/' + updateColumn.id,
-            request2
-          );
+          const response2 = await ColumnService.patch(updateColumn.id, {
+            taskIdList: newTaskIdList,
+          });
+
           const columnFinish = await response2.json();
           const indexUpdate = columnList.findIndex(
             (column) => columnFinish.id === column.id

@@ -1,14 +1,10 @@
 import { HttpService } from './HttpService';
 
-export class TaskService {
-  static #ENDPOINT = 'tasks';
+export class ColumnService {
+  static #ENDPOINT = 'columns';
 
   static getAll() {
     return HttpService.getAll(this.#ENDPOINT);
-  }
-
-  static getById(id) {
-    return HttpService.get(this.#ENDPOINT, id);
   }
 
   static post(body) {
