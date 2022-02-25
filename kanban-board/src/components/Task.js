@@ -8,6 +8,15 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ShareIcon from '@mui/icons-material/Share';
 
 export const Task = ({ task, index }) => {
+  const handleOnClickShareButton = () => {
+    navigator.clipboard.writeText(
+      `${window.location.origin}${taskDetail()}/${task.id}`
+    );
+  };
+
+  const handleOnClickDeleteButton = () => {
+    alert('Delete'); //TODO
+  };
   return (
     <Draggable draggableId={task.id} index={index}>
       {(provided, snapshot) => (
@@ -40,13 +49,9 @@ export const Task = ({ task, index }) => {
                   size="small"
                   sx={{ mr: 0, pr: 0 }}
                   edge="end"
-                  onClick={() => {
-                    navigator.clipboard.writeText(
-                      `${window.location.origin}${taskDetail()}/${task.id}`
-                    );
-                  }}
                   component={Link}
                   to={`${taskDetail()}/${task.id}`}
+                  onClick={handleOnClickShareButton}
                 >
                   <ShareIcon />
                 </IconButton>
@@ -55,6 +60,7 @@ export const Task = ({ task, index }) => {
                   size="small"
                   sx={{ mr: 0, pr: 0 }}
                   edge="end"
+                  onClick={handleOnClickDeleteButton}
                 >
                   <DeleteIcon />
                 </IconButton>

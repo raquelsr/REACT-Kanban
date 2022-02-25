@@ -8,6 +8,8 @@ import { TaskService } from '../services/TaskService';
 import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { toast, ToastContainer } from 'react-toastify';
+import { injectStyle } from 'react-toastify/dist/inject-style';
 
 export const TaskDetail = () => {
   const { id } = useParams();
@@ -16,6 +18,16 @@ export const TaskDetail = () => {
   const [task, setTask] = useState(null);
 
   useEffect(() => {
+    function showToast() {
+      if (typeof window !== 'undefined') {
+        injectStyle();
+      }
+      toast('🖇 URL copied to Clipboard, ready to share!', {
+        position: 'bottom-center',
+        autoClose: 3000,
+        hideProgressBar: true,
+      });
+    }
     async function fetchTask() {
       try {
         const response = await TaskService.getById(id);
@@ -30,6 +42,7 @@ export const TaskDetail = () => {
         console.error(e);
       }
     }
+    showToast();
     fetchTask();
   }, []);
 
@@ -61,6 +74,7 @@ export const TaskDetail = () => {
           <p>More information will be available soon...</p>
         </Box>
       )}
+      <ToastContainer />
     </Box>
   );
 };
