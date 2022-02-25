@@ -1,11 +1,44 @@
 import { useParams } from 'react-router-dom';
+import { Box } from '@mui/system';
+import { TaskService } from '../services/TaskService';
+import { useState, useEffect } from 'react';
+import { Button } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { board } from '../conf/routes';
+import { Link } from 'react-router-dom';
 
 export const TaskDetail = () => {
   const { id } = useParams();
+  const [loading, setLoading] = useState(true);
+  const [task, setTask] = useState(null);
+
+  useEffect(() => {
+    async function fetchTask() {
+      try {
+        const response = await TaskService.getById(id);
+        const task = await response.json();
+        setTask(task);
+        setLoading(false);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    fetchTask();
+  }, []);
+
+  if (loading) {
+    return <div>Loading.. {id}.</div>;
+  }
 
   return (
-    <div>
-      <h3>ID: {id}</h3>
-    </div>
+    <>
+      <Button size="small" edge="end" component={Link} to={board()}>
+        <ArrowBackIcon /> Return to board
+      </Button>
+      <Box>
+        <h1>{task.title}</h1>
+        <p>More information will be available soon...{id}</p>
+      </Box>
+    </>
   );
 };

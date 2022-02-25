@@ -15,17 +15,6 @@ function App() {
         <CssBaseline />
         <Router>
           <div>
-            <nav>
-              <ul>
-                <li>
-                  <Link to={board()}>Home</Link>
-                </li>
-                <li>
-                  <Link to="tasks/task-3">Task detail</Link>
-                </li>
-              </ul>
-            </nav>
-
             {/* A <Switch> looks through its children <Route>s and
             renders the first one that matches the current URL. */}
             <Routes>

@@ -14,7 +14,7 @@ export class HttpService {
   }
 
   static get(endpoint, id) {
-    return fetch(`${HttpService.#URL}/${endpoint}/{${id}}`);
+    return fetch(`${HttpService.#URL}/${endpoint}/${id}`);
   }
 
   static post(endpoint, body) {
