@@ -5,7 +5,7 @@ import { Box } from '@mui/system';
 import { IconButton } from '@mui/material';
 import ShareIcon from '@mui/icons-material/Share';
 import { Link } from 'react-router-dom';
-import { taskDetail } from '../conf/routes';
+import { taskDetail } from '../core/routes';
 
 export const Task = ({ task, index }) => {
   return (
