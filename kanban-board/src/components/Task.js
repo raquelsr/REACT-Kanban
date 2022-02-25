@@ -10,7 +10,7 @@ import { taskDetail } from '../conf/routes';
 export const Task = ({ task, index }) => {
   return (
     <Draggable draggableId={task.id} index={index}>
-      {(provided) => (
+      {(provided, snapshot) => (
         <div
           ref={provided.innerRef}
           {...provided.dragHandleProps}
@@ -18,8 +18,10 @@ export const Task = ({ task, index }) => {
         >
           <Box
             sx={{
-              background: 'white',
-              border: '1px solid #2C423F',
+              background: '#FFF',
+              border: `${
+                snapshot.isDragging ? '3px solid #2C423F' : '1px solid #2C423F'
+              }`,
               borderRadius: 2,
             }}
             style={{ margin: '15px' }}
