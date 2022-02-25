@@ -1,16 +1,18 @@
-import { useParams } from 'react-router-dom';
-import { Box } from '@mui/system';
-import { TaskService } from '../services/TaskService';
-import { useState, useEffect } from 'react';
-import { Button } from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { board } from '../routes/routes';
+import { Box } from '@mui/system';
+import { Button } from '@mui/material';
+import { Error } from './Error';
 import { Link } from 'react-router-dom';
 import { Loading } from './Loading';
+import { TaskService } from '../services/TaskService';
+import { useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 export const TaskDetail = () => {
   const { id } = useParams();
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [task, setTask] = useState(null);
 
   useEffect(() => {
@@ -18,18 +20,18 @@ export const TaskDetail = () => {
       try {
         const response = await TaskService.getById(id);
         const task = await response.json();
+        if (!response.ok) throw Error('Could not fetch data.');
         setTask(task);
-        setLoading(false);
+        setIsLoading(false);
+        setError(null);
       } catch (e) {
+        setIsLoading(false);
+        setError(e.message);
         console.error(e);
       }
     }
     fetchTask();
   }, []);
-
-  if (loading) {
-    return <Loading />;
-  }
 
   return (
     <Box sx={{ m: 3 }}>
@@ -43,18 +45,22 @@ export const TaskDetail = () => {
       >
         <ArrowBackIcon /> Return to board
       </Button>
-      <Box
-        sx={{
-          background: '#FFF',
-          border: '2px solid #2C423F',
-          m: 8,
-          p: 4,
-          textAlign: 'center',
-        }}
-      >
-        <h1>{task.title}</h1>
-        <p>More information will be available soon...</p>
-      </Box>
+      {error && <Error />}
+      {isLoading && <Loading />}
+      {task && (
+        <Box
+          sx={{
+            background: '#FFF',
+            border: '2px solid #2C423F',
+            m: 8,
+            p: 4,
+            textAlign: 'center',
+          }}
+        >
+          <h1>{task.title}</h1>
+          <p>More information will be available soon...</p>
+        </Box>
+      )}
     </Box>
   );
 };

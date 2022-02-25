@@ -1,31 +1,30 @@
-import React, { useState } from 'react';
-import Collapse from '@mui/material/Collapse';
-import { InputCard } from './InputCard';
 import { Button } from '@mui/material';
+import { InputComponent } from './InputComponent';
+import Collapse from '@mui/material/Collapse';
+import React, { useState } from 'react';
 
-export const InputContainer = ({ columnId, type, add }) => {
-  const [open, setOpen] = useState(false);
-
-  const change = (e) => {
-    alert('chagne');
-  };
+export const InputContainer = ({ columnId, add, type }) => {
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="input-container">
-      <Collapse in={open}>
-        <InputCard
-          setOpen={setOpen}
-          columnId={columnId}
-          type={type}
-          onChange={change}
+    <>
+      <Collapse in={isOpen}>
+        <InputComponent
+          setIsOpen={setIsOpen}
           add={add}
+          type={type}
+          columnId={columnId}
         />
       </Collapse>
-      <Collapse in={!open}>
-        <Button size="small" variant="contained" onClick={() => setOpen(!open)}>
-          {type === 'task' ? '+ Add task' : '+ Add column'}
+      <Collapse in={!isOpen}>
+        <Button
+          size="small"
+          variant="contained"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          {type === 'task' ? 'Add task' : 'Add column'}
         </Button>
       </Collapse>
-    </div>
+    </>
   );
 };

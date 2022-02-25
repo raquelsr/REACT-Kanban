@@ -1,10 +1,6 @@
 export class HttpService {
   static #URL = 'http://localhost:3001';
 
-  static #HEADERS = Object.freeze({
-    'Content-Type': 'application/json',
-  });
-
   static #REQUEST_TYPE = Object.freeze({
     POST: 'POST',
     PATCH: 'PATCH',
@@ -12,10 +8,10 @@ export class HttpService {
     DELETE: 'DELETE',
   });
 
-  static #createRequest(type, body = null) {
+  static #createRequest(type, body = {}) {
     return {
       method: [type],
-      headers: [this.#HEADERS],
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     };
   }
@@ -29,30 +25,28 @@ export class HttpService {
   }
 
   static post(endpoint, body) {
-    return fetch(
-      `${HttpService.#URL}/${endpoint}`,
-      this.#createRequest(this.#REQUEST_TYPE.POST, body)
-    );
+    const q = this.#createRequest(HttpService.#REQUEST_TYPE.POST, body);
+    return fetch(`${HttpService.#URL}/${endpoint}`, q);
   }
 
   static patch(endpoint, id, body) {
     return fetch(
       `${HttpService.#URL}/${endpoint}/${id}`,
-      this.#createRequest(this.#REQUEST_TYPE.PATCH, body)
+      this.#createRequest(HttpService.#REQUEST_TYPE.PATCH, body)
     );
   }
 
   static put(endpoint, id, body) {
     return fetch(
       `${HttpService.#URL}/${endpoint}/${id}`,
-      this.createRequest(this.#REQUEST_TYPE.PUT, body)
+      this.createRequest(HttpService.#REQUEST_TYPE.PUT, body)
     );
   }
 
   static delete(endpoint, id) {
     return fetch(
       `${HttpService.#URL}/${endpoint}/${id}`,
-      this.createRequest(this.#REQUEST_TYPE.DELETE)
+      this.createRequest(HttpService.#REQUEST_TYPE.DELETE)
     );
   }
 }
