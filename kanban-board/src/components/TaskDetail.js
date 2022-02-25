@@ -6,16 +6,16 @@ import { Link } from 'react-router-dom';
 import { Loading } from './Loading';
 import { TaskService } from '../services/TaskService';
 import { useParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { toast, ToastContainer } from 'react-toastify';
 import { injectStyle } from 'react-toastify/dist/inject-style';
+import { useFetch } from '../hooks/useFetch';
 
 export const TaskDetail = () => {
   const { id } = useParams();
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [task, setTask] = useState(null);
+  const { isLoading, data, error } = useFetch([TaskService.getById], id);
+  const task = data?.[0];
 
   useEffect(() => {
     function showToast() {
@@ -24,26 +24,13 @@ export const TaskDetail = () => {
       }
       toast('🖇 URL copied to Clipboard, ready to share!', {
         position: 'bottom-center',
-        autoClose: 3000,
+        autoClose: 1500,
         hideProgressBar: true,
       });
     }
-    async function fetchTask() {
-      try {
-        const response = await TaskService.getById(id);
-        const task = await response.json();
-        if (!response.ok) throw Error('Could not fetch data.');
-        setTask(task);
-        setIsLoading(false);
-        setError(null);
-      } catch (e) {
-        setIsLoading(false);
-        setError(e.message);
-        console.error(e);
-      }
+    if (!error) {
+      showToast();
     }
-    showToast();
-    fetchTask();
   }, []);
 
   return (
@@ -60,7 +47,7 @@ export const TaskDetail = () => {
       </Button>
       {error && <Error />}
       {isLoading && <Loading />}
-      {task && (
+      {data && (
         <Box
           sx={{
             background: '#FFF',

@@ -4,14 +4,14 @@ export class ColumnService {
   static #ENDPOINT = 'columns';
 
   static getAll() {
-    return HttpService.getAll(this.#ENDPOINT);
+    return HttpService.getAll('columns');
   }
 
   static post(body) {
-    return HttpService.post(this.#ENDPOINT, body);
+    return HttpService.post('columns', body);
   }
 
   static patch(id, body) {
-    return HttpService.patch(this.#ENDPOINT, id, body);
+    return HttpService.patch('columns', id, body);
   }
 }

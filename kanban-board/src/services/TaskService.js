@@ -4,11 +4,11 @@ export class TaskService {
   static #ENDPOINT = 'tasks';
 
   static getAll() {
-    return HttpService.getAll(this.#ENDPOINT);
+    return HttpService.getAll('tasks');
   }
 
   static getById(id) {
-    return HttpService.get(this.#ENDPOINT, id);
+    return HttpService.get('tasks', id);
   }
 
   static post(body) {

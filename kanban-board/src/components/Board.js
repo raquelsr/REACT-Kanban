@@ -1,5 +1,4 @@
 import { Box } from '@mui/system';
-import { useState, useEffect } from 'react';
 import { Column } from './Column';
 import { DragDropContext } from 'react-beautiful-dnd';
 import { Droppable } from 'react-beautiful-dnd';
@@ -8,34 +7,27 @@ import { TaskService } from '../services/TaskService';
 import { ColumnService } from '../services/ColumnService';
 import { Loading } from './Loading';
 import { Error } from './Error';
+import { useFetch } from '../hooks/useFetch';
 export const Board = () => {
-  const [loading, setLoading] = useState(true);
-  const [columnList, setColumnList] = useState([]);
-  const [taskList, setTaskList] = useState([]);
-  const [error, setError] = useState(false);
+  const { isLoading, data, updateData, error } = useFetch([
+    ColumnService.getAll,
+    TaskService.getAll,
+  ]);
 
-  useEffect(() => {
-    async function fetchData() {
-      Promise.all([ColumnService.getAll(), TaskService.getAll()])
-        .then((responses) => {
-          const error = responses.some((res) => !res.ok);
-          if (error) throw new Error('!error');
-          Promise.all(responses.map((response) => response.json())).then(
-            (data) => {
-              setLoading(false);
-              setColumnList(data[0]);
-              setTaskList(data[1]);
-            }
-          );
-        })
-        .catch((e) => {
-          setLoading(false);
-          setError(true);
-          console.error(e);
-        });
-    }
-    fetchData();
-  }, []);
+  const columnList = data?.[0];
+  const taskList = data?.[1];
+
+  const setColumnList = (newColumnList) => {
+    //Hook useCopyArray
+    const object = [...data];
+    object[0] = newColumnList;
+    updateData(object);
+  };
+  const setTaskList = (newTaskList) => {
+    const object = [...data];
+    object[1] = newTaskList;
+    updateData(object);
+  };
 
   const addNewColumn = async (title) => {
     try {
@@ -57,7 +49,7 @@ export const Board = () => {
     }
   };
 
-  const addNewTask = async (title, type, columnId) => {
+  const addNewTask = async (title, columnId) => {
     try {
       const response = await TaskService.post({
         id: new Date().getTime().toString(),
@@ -79,9 +71,9 @@ export const Board = () => {
       const newColumnList = [...columnList]; //ES6
       newColumnList.splice(indexUpdate, 1);
       newColumnList.splice(indexUpdate, 0, columnFinish);
-      setTaskList(taskList.concat(dataTask));
-
-      setColumnList(newColumnList);
+      // setTaskList(taskList.concat(dataTask));
+      // setColumnList(newColumnList);
+      updateData([newColumnList, taskList.concat(dataTask)]);
     } catch (e) {
       console.log(e);
     }
@@ -201,8 +193,8 @@ export const Board = () => {
     >
       <h1>Kanban Board</h1>
       {error && <Error />}
-      {loading && <Loading />}
-      {!error && (
+      {isLoading && <Loading />}
+      {data && (
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable
             droppableId="all-columns"
