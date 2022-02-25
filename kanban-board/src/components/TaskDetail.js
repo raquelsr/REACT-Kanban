@@ -4,7 +4,7 @@ import { TaskService } from '../services/TaskService';
 import { useState, useEffect } from 'react';
 import { Button } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { board } from '../core/routes';
+import { board } from '../routes/routes';
 import { Link } from 'react-router-dom';
 import { Loading } from './Loading';
 

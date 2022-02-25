@@ -2,7 +2,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@emotion/react';
 import { theme } from './styles/Theme';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { board, taskDetail } from './core/routes';
+import { board, taskDetail } from './routes/routes';
 import { Board } from './components/Board';
 import { TaskDetail } from './components/TaskDetail';
 

@@ -202,31 +202,33 @@ export const Board = () => {
       <h1>Kanban Board</h1>
       {error && <Error />}
       {loading && <Loading />}
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable
-          droppableId="all-columns"
-          direction="horizontal"
-          type="column"
-        >
-          {(provided) => (
-            <div {...provided.droppableProps} ref={provided.innerRef}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-around' }}>
-                {columnList.map((column, index) => (
-                  <Column
-                    key={column.id}
-                    column={column}
-                    taskList={taskList}
-                    index={index}
-                    add={add}
-                  />
-                ))}
-                <InputContainer type="column" add={add} />
-                {provided.placeholder}
-              </Box>
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
+      {!error && (
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable
+            droppableId="all-columns"
+            direction="horizontal"
+            type="column"
+          >
+            {(provided) => (
+              <div {...provided.droppableProps} ref={provided.innerRef}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-around' }}>
+                  {columnList.map((column, index) => (
+                    <Column
+                      key={column.id}
+                      column={column}
+                      taskList={taskList}
+                      index={index}
+                      add={add}
+                    />
+                  ))}
+                  <InputContainer type="column" add={add} />
+                  {provided.placeholder}
+                </Box>
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+      )}
     </Box>
   );
 };

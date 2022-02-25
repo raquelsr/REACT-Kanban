@@ -7,9 +7,13 @@ export const theme = createTheme({
     },
     primary: {
       main: '#1B998B',
+      error: '#D32F2F',
     },
     secondary: {
       main: '#2C423F',
+    },
+    error: {
+      main: '#D32F2F',
     },
   },
 });
