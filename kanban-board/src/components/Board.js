@@ -6,25 +6,33 @@ import { Droppable } from 'react-beautiful-dnd';
 import { InputContainer } from './InputContainer';
 import { TaskService } from '../services/TaskService';
 import { ColumnService } from '../services/ColumnService';
-
+import { Loading } from './Loading';
+import { Error } from './Error';
 export const Board = () => {
   const [loading, setLoading] = useState(true);
   const [columnList, setColumnList] = useState([]);
   const [taskList, setTaskList] = useState([]);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
       Promise.all([ColumnService.getAll(), TaskService.getAll()])
         .then((responses) => {
+          const error = responses.some((res) => !res.ok);
+          if (error) throw new Error('!error');
           Promise.all(responses.map((response) => response.json())).then(
             (data) => {
+              setLoading(false);
               setColumnList(data[0]);
               setTaskList(data[1]);
-              setLoading(false);
             }
           );
         })
-        .catch((e) => console.log(e));
+        .catch((e) => {
+          setLoading(false);
+          setError(true);
+          console.error(e);
+        });
     }
     fetchData();
   }, []);
@@ -179,10 +187,6 @@ export const Board = () => {
     }
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <Box
       sx={{
@@ -196,6 +200,8 @@ export const Board = () => {
       }}
     >
       <h1>Kanban Board</h1>
+      {error && <Error />}
+      {loading && <Loading />}
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable
           droppableId="all-columns"

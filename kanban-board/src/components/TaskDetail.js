@@ -6,6 +6,7 @@ import { Button } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { board } from '../conf/routes';
 import { Link } from 'react-router-dom';
+import { Loading } from './Loading';
 
 export const TaskDetail = () => {
   const { id } = useParams();
@@ -27,18 +28,33 @@ export const TaskDetail = () => {
   }, []);
 
   if (loading) {
-    return <div>Loading.. {id}.</div>;
+    return <Loading />;
   }
 
   return (
-    <>
-      <Button size="small" edge="end" component={Link} to={board()}>
+    <Box sx={{ m: 3 }}>
+      <Button
+        sx={{ background: '#FFF' }}
+        variant="outlined"
+        size="small"
+        color="secondary"
+        component={Link}
+        to={board()}
+      >
         <ArrowBackIcon /> Return to board
       </Button>
-      <Box>
+      <Box
+        sx={{
+          background: '#FFF',
+          border: '2px solid #2C423F',
+          m: 8,
+          p: 4,
+          textAlign: 'center',
+        }}
+      >
         <h1>{task.title}</h1>
-        <p>More information will be available soon...{id}</p>
+        <p>More information will be available soon...</p>
       </Box>
-    </>
+    </Box>
   );
 };
