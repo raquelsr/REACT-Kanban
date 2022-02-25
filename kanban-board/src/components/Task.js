@@ -1,10 +1,11 @@
 import * as React from 'react';
-import TextField from '@mui/material/TextField';
-import InputAdornment from '@mui/material/InputAdornment';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Draggable } from 'react-beautiful-dnd';
 import { Box } from '@mui/system';
-import { Button, IconButton } from '@mui/material';
+import { IconButton } from '@mui/material';
+import ShareIcon from '@mui/icons-material/Share';
+import { Link } from 'react-router-dom';
+import { taskDetail } from '../conf/routes';
 
 export const Task = ({ task, index }) => {
   return (
@@ -36,8 +37,23 @@ export const Task = ({ task, index }) => {
                 size="small"
                 sx={{ mr: 0, pr: 0 }}
                 edge="end"
+                onClick={() => {
+                  navigator.clipboard.writeText(
+                    `${window.location.origin}${taskDetail()}/${task.id}`
+                  );
+                }}
+                component={Link}
+                to={`${taskDetail()}/${task.id}`}
               >
-                <DeleteIcon></DeleteIcon>
+                <ShareIcon />
+              </IconButton>
+              <IconButton
+                color="primary"
+                size="small"
+                sx={{ mr: 0, pr: 0 }}
+                edge="end"
+              >
+                <DeleteIcon />
               </IconButton>
             </div>
           </Box>
