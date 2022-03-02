@@ -1,13 +1,34 @@
-import React, { useState } from 'react';
+import { Box } from '@mui/system';
 import { Button } from '@mui/material';
 import { TextField } from '@mui/material';
-import { Box } from '@mui/system';
+import React, { useState, useRef } from 'react';
 
-export const InputComponent = ({ setIsOpen, add, type, columnId }) => {
+export const InputComponent = ({
+  setIsOpen,
+  handleOnClickAddButton,
+  type,
+  columnId,
+}) => {
   const [title, setTitle] = useState('');
+  const textInput = useRef(null);
 
-  const handleOnChange = (e) => {
+  const handleOnChangeTextField = (e) => {
     setTitle(e.target.value);
+  };
+
+  const clearAndCloseComponent = () => {
+    textInput.current.value = '';
+    setIsOpen(false);
+  };
+
+  const handleOnClickCancelButton = () => {
+    setTitle('');
+    clearAndCloseComponent();
+  };
+
+  const onClickAddButton = () => {
+    clearAndCloseComponent();
+    handleOnClickAddButton(title, type, columnId);
   };
 
   return (
@@ -22,8 +43,9 @@ export const InputComponent = ({ setIsOpen, add, type, columnId }) => {
       <TextField
         placeholder="Enter text..."
         color="primary"
+        inputRef={textInput}
         autoFocus
-        onChange={handleOnChange}
+        onChange={handleOnChangeTextField}
         sx={{
           background: '#FFF',
           borderRadius: 2,
@@ -41,7 +63,7 @@ export const InputComponent = ({ setIsOpen, add, type, columnId }) => {
           size="small"
           variant="contained"
           sx={{ width: '70px' }}
-          onClick={() => add(title, type, columnId)}
+          onClick={onClickAddButton}
         >
           Add
         </Button>
@@ -49,10 +71,7 @@ export const InputComponent = ({ setIsOpen, add, type, columnId }) => {
           variant="outlined"
           sx={{ background: '#FFF', width: '70px' }}
           size="small"
-          onClick={() => {
-            setTitle('');
-            setIsOpen(false);
-          }}
+          onClick={handleOnClickCancelButton}
         >
           Cancel
         </Button>

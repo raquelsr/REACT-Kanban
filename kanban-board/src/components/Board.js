@@ -1,13 +1,15 @@
 import { Box } from '@mui/system';
 import { Column } from './Column';
+import { ColumnService } from '../services/ColumnService';
 import { DragDropContext } from 'react-beautiful-dnd';
 import { Droppable } from 'react-beautiful-dnd';
-import { InputContainer } from './InputContainer';
-import { TaskService } from '../services/TaskService';
-import { ColumnService } from '../services/ColumnService';
-import { Loading } from './Loading';
 import { Error } from './Error';
+import { HttpService } from '../services/HttpService';
+import { InputContainer, INPUT_TYPE } from './InputContainer';
+import { Loading } from './Loading';
+import { TaskService } from '../services/TaskService';
 import { useFetch } from '../hooks/useFetch';
+
 export const Board = () => {
   const { isLoading, data, updateData, error } = useFetch([
     ColumnService.getAll,
@@ -18,165 +20,104 @@ export const Board = () => {
   const taskList = data?.[1];
 
   const setColumnList = (newColumnList) => {
-    //Hook useCopyArray
     const object = [...data];
     object[0] = newColumnList;
     updateData(object);
   };
-  const setTaskList = (newTaskList) => {
-    const object = [...data];
-    object[1] = newTaskList;
-    updateData(object);
-  };
 
   const addNewColumn = async (title) => {
-    try {
-      const response = await ColumnService.post({
-        id: new Date().getTime().toString(),
-        title,
-        taskIdList: [],
-      });
-      const data = await response.json();
-      setColumnList(columnList.concat(data));
-      // check for error response
-      if (!response.ok) {
-        // get error message from body or default to response status
-        const error = (data && data.message) || response.status;
-        return Promise.reject(error);
-      }
-    } catch (e) {
-      console.log('errro');
-    }
+    const newColumn = await HttpService.executeRequest(ColumnService.post, {
+      id: new Date().getTime().toString(),
+      title,
+      taskIdList: [],
+    });
+    setColumnList(columnList.concat(newColumn));
   };
 
   const addNewTask = async (title, columnId) => {
-    try {
-      const response = await TaskService.post({
-        id: new Date().getTime().toString(),
-        title,
-      });
-      const dataTask = await response.json();
-      const updateColumn = columnList.find((column) => column.id === columnId);
-
-      const newTaskIdList = updateColumn.taskIdList.concat(dataTask.id);
-
-      const response2 = await ColumnService.patch(updateColumn.id, {
+    const newTask = await HttpService.executeRequest(TaskService.post, {
+      id: new Date().getTime().toString(),
+      title,
+    });
+    const column = columnList.find((column) => column.id === columnId);
+    const newTaskIdList = column.taskIdList.concat(newTask.id);
+    const updatedColumn = await HttpService.executeRequest(
+      ColumnService.patch,
+      column.id,
+      {
         taskIdList: newTaskIdList,
-      });
-
-      const columnFinish = await response2.json();
-      const indexUpdate = columnList.findIndex(
-        (column) => columnFinish.id === column.id
-      );
-      const newColumnList = [...columnList]; //ES6
-      newColumnList.splice(indexUpdate, 1);
-      newColumnList.splice(indexUpdate, 0, columnFinish);
-      // setTaskList(taskList.concat(dataTask));
-      // setColumnList(newColumnList);
-      updateData([newColumnList, taskList.concat(dataTask)]);
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  const add = async (title, type, columnId) => {
-    if (title && title != '') {
-      if (type === 'column') {
-        addNewColumn(title);
-      } else {
-        addNewTask(title, columnId);
       }
+    );
+    const columnIndex = columnList.findIndex(
+      (column) => column.id === updatedColumn.id
+    );
+    const newColumnList = [...columnList];
+    newColumnList.splice(columnIndex, 1, updatedColumn);
+    updateData([newColumnList, taskList.concat(newTask)]);
+  };
+
+  const handleOnClickAddButton = async (title, type, columnId) => {
+    if (title && title != '') {
+      type === INPUT_TYPE.COLUMN
+        ? addNewColumn(title)
+        : addNewTask(title, columnId);
     }
   };
 
-  const onDragColumn = ({ destination, source, draggableId }) => {
+  const onDragColumn = async ({ destination, source, draggableId }) => {
     const column = columnList.find((column) => column.id === draggableId);
-    const newColumnList = [...columnList]; //ES6
+    const newColumnList = [...columnList];
     newColumnList.splice(source.index, 1);
     newColumnList.splice(destination.index, 0, column);
-
     setColumnList(newColumnList);
   };
 
-  const onDragTask = ({ destination, source, draggableId }) => {
+  const onDragTask = async ({ destination, source, draggableId }) => {
     const startColumn = columnList.find(
       (column) => column.id === source.droppableId
     );
-
     const finishColumn = columnList.find(
       (column) => column.id === destination.droppableId
     );
+    const task = startColumn.taskIdList.find((task) => task === draggableId);
+    const newTaskList = [...startColumn.taskIdList];
+    newTaskList.splice(source.index, 1);
 
     if (startColumn === finishColumn) {
-      const task = startColumn.taskIdList.find((task) => task === draggableId);
-      const newTaskList = Array.from(startColumn.taskIdList);
-      newTaskList.splice(source.index, 1);
       newTaskList.splice(destination.index, 0, task);
 
-      const newColumn = {
-        ...startColumn,
+      await HttpService.executeRequest(ColumnService.patch, startColumn.id, {
         taskIdList: newTaskList,
-      };
-
-      const index = columnList.findIndex(
-        (column) => column.id === newColumn.id
-      );
-      const newColumnList = Array.from(columnList);
-      newColumnList.splice(index, 1);
-      newColumnList.splice(index, 0, newColumn);
-
-      setColumnList(newColumnList);
-      // Update API
+      });
     } else {
-      const task = startColumn.taskIdList.find((task) => task === draggableId);
-      const newTaskListStart = Array.from(startColumn.taskIdList);
-      newTaskListStart.splice(source.index, 1);
-      const newColumnStart = {
-        ...startColumn,
-        taskIdList: newTaskListStart,
-      };
-
-      const newTaskListFinish = Array.from(finishColumn.taskIdList);
+      await HttpService.executeRequest(ColumnService.patch, startColumn.id, {
+        taskIdList: newTaskList,
+      });
+      const newTaskListFinish = [...finishColumn.taskIdList];
       newTaskListFinish.splice(destination.index, 0, task);
-      const newColumnFinish = {
-        ...finishColumn,
+      await HttpService.executeRequest(ColumnService.patch, finishColumn.id, {
         taskIdList: newTaskListFinish,
-      };
-
-      const indexStart = columnList.findIndex(
-        (column) => column.id === newColumnStart.id
-      );
-      const indexFinish = columnList.findIndex(
-        (column) => column.id === newColumnFinish.id
-      );
-      const newColumnList = Array.from(columnList);
-      newColumnList.splice(indexStart, 1);
-      newColumnList.splice(indexStart, 0, newColumnStart);
-      newColumnList.splice(indexFinish, 1);
-      newColumnList.splice(indexFinish, 0, newColumnFinish);
-
-      setColumnList(newColumnList);
+      });
     }
+
+    const newColumnList = await HttpService.executeRequest(
+      ColumnService.getAll
+    );
+    setColumnList(newColumnList);
   };
 
   const onDragEnd = (result) => {
-    const { destination, source, draggableId, type } = result;
+    const { destination, source, type } = result;
     if (!destination) {
       return;
     }
-
     if (
       destination.droppableId === source.droppableId &&
       destination.index === source.index
     ) {
       return;
     }
-
-    if (type === 'column') {
-      onDragColumn(result);
-    } else {
-      onDragTask(result);
-    }
+    type === INPUT_TYPE.COLUMN ? onDragColumn(result) : onDragTask(result);
   };
 
   return (
@@ -195,31 +136,46 @@ export const Board = () => {
       {error && <Error />}
       {isLoading && <Loading />}
       {data && (
-        <DragDropContext onDragEnd={onDragEnd}>
-          <Droppable
-            droppableId="all-columns"
-            direction="horizontal"
-            type="column"
-          >
-            {(provided) => (
-              <div {...provided.droppableProps} ref={provided.innerRef}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-around' }}>
+        <>
+          <Box sx={{ width: '100%', display: 'grid', placeContent: 'center' }}>
+            <InputContainer
+              sx={{ width: '50px' }}
+              type={INPUT_TYPE.COLUMN}
+              handleOnClickAddButton={handleOnClickAddButton}
+            ></InputContainer>
+          </Box>
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable
+              droppableId="all-columns"
+              direction="horizontal"
+              type={INPUT_TYPE.COLUMN}
+            >
+              {(provided) => (
+                <Box
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-around',
+                    marginTop: '20px',
+                  }}
+                >
                   {columnList.map((column, index) => (
                     <Column
                       key={column.id}
                       column={column}
                       taskList={taskList}
                       index={index}
-                      add={add}
+                      handleOnClickAddButton={handleOnClickAddButton}
                     />
                   ))}
-                  <InputContainer type="column" add={add} />
+
                   {provided.placeholder}
                 </Box>
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
+              )}
+            </Droppable>
+          </DragDropContext>
+        </>
       )}
     </Box>
   );

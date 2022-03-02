@@ -3,7 +3,12 @@ import { InputComponent } from './InputComponent';
 import Collapse from '@mui/material/Collapse';
 import React, { useState } from 'react';
 
-export const InputContainer = ({ columnId, add, type }) => {
+export const INPUT_TYPE = Object.freeze({
+  TASK: 'TASK',
+  COLUMN: 'COLUMN',
+});
+
+export const InputContainer = ({ columnId, handleOnClickAddButton, type }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -11,7 +16,7 @@ export const InputContainer = ({ columnId, add, type }) => {
       <Collapse in={isOpen}>
         <InputComponent
           setIsOpen={setIsOpen}
-          add={add}
+          handleOnClickAddButton={handleOnClickAddButton}
           type={type}
           columnId={columnId}
         />
@@ -22,7 +27,7 @@ export const InputContainer = ({ columnId, add, type }) => {
           variant="contained"
           onClick={() => setIsOpen(!isOpen)}
         >
-          {type === 'task' ? 'Add task' : 'Add column'}
+          {type === INPUT_TYPE.TASK ? 'Add task' : 'Add column'}
         </Button>
       </Collapse>
     </>

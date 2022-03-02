@@ -49,4 +49,17 @@ export class HttpService {
       this.createRequest(HttpService.#REQUEST_TYPE.DELETE)
     );
   }
+
+  static async executeRequest(request, ...params) {
+    try {
+      const response = await request(...params);
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error('Request has failed.');
+      }
+      return data;
+    } catch (e) {
+      console.error(e);
+    }
+  }
 }

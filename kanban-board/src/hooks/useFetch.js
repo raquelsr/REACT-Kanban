@@ -10,7 +10,7 @@ export const useFetch = (fetchRequestList, ...params) => {
       Promise.all(fetchRequestList.map((request) => request(...params)))
         .then((responses) => {
           const error = responses.some((res) => !res.ok);
-          if (error) throw new Error('!error');
+          if (error) throw new Error('Request has failed.');
           Promise.all(responses.map((response) => response.json())).then(
             (data) => {
               setData(data);

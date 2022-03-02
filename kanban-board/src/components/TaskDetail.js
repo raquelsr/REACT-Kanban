@@ -2,15 +2,15 @@ import { board } from '../routes/routes';
 import { Box } from '@mui/system';
 import { Button } from '@mui/material';
 import { Error } from './Error';
+import { injectStyle } from 'react-toastify/dist/inject-style';
 import { Link } from 'react-router-dom';
 import { Loading } from './Loading';
 import { TaskService } from '../services/TaskService';
-import { useParams } from 'react-router-dom';
-import { useEffect } from 'react';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { toast, ToastContainer } from 'react-toastify';
-import { injectStyle } from 'react-toastify/dist/inject-style';
+import { useEffect } from 'react';
 import { useFetch } from '../hooks/useFetch';
+import { useParams } from 'react-router-dom';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 export const TaskDetail = () => {
   const { id } = useParams();

@@ -4,7 +4,6 @@ import { IconButton } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { taskDetail } from '../routes/routes';
 import * as React from 'react';
-import DeleteIcon from '@mui/icons-material/Delete';
 import ShareIcon from '@mui/icons-material/Share';
 
 export const Task = ({ task, index }) => {
@@ -14,9 +13,6 @@ export const Task = ({ task, index }) => {
     );
   };
 
-  const handleOnClickDeleteButton = () => {
-    alert('Delete'); //TODO
-  };
   return (
     <Draggable draggableId={task.id} index={index}>
       {(provided, snapshot) => (
@@ -54,15 +50,6 @@ export const Task = ({ task, index }) => {
                   onClick={handleOnClickShareButton}
                 >
                   <ShareIcon />
-                </IconButton>
-                <IconButton
-                  color="primary"
-                  size="small"
-                  sx={{ mr: 0, pr: 0 }}
-                  edge="end"
-                  onClick={handleOnClickDeleteButton}
-                >
-                  <DeleteIcon />
                 </IconButton>
               </Box>
             </div>
