@@ -1,22 +1,35 @@
-# Technical assignment front-end engineer
-Create a minimal Kanban board on which you can create and view tickets.
+# KANBAN BOARD
 
-Your task is to:
+Minimal Kanban board on which you can create and view tickets.
+Developed with:
 
-- be able to create tickets on the board and move them between the various columns in an interactive way.
-- be able to share a direct link to the ticket.
+- React
+- Material UI
+- React-beautiful-dnd
+- JSON Server
 
-You are free to use the tools you prefer, however, we strongly suggest you keep the hard skills of the job offer in mind.
+- ### SERVER SIDE
 
-**Minimal requirements**
+The server side is quickly mocketed thanks to [JSON Server](https://github.com/typicode/json-server)
+The main endpoints are _*/columns*_ and _*/tasks*_.
+It is launched on port 3001
 
-The three pillars of front-end development are HTML, CSS and JavaScript. We would like to see you know how to use them for the right job.
-* Use React
-* Pay attention to semantics: any HTML might work, but choosing the right tags show you care.
-* Show us you know how to create a modern user interface using your favourite styling solution.
-* Interact with an API. [JSON Server](https://github.com/typicode/json-server) can be used to add a fake REST API or you can decide to build your own.
+```sh
+$ cd kanban-board
+$ npm run server
+```
 
-**Timing**
+Open [http://localhost:3001/columns](http://localhost:3001/columns) to view it in the browser all columns data.
 
-You have one week to complete the assignment. You decide yourself how much time and effort you invest in it, but quality(!) and a reasonable delivery time are always highly appreciated. 
-Please send us an email (jobs@madewithlove.com) when you think the assignment is ready for review. Please mention your name, Github username, and a link to what we need to review.
+- ### CLIENT SIDE / FRONT-END
+  To run it, we must launch the following commands inside the folder:
+
+```sh
+$ cd kanban-board
+$ npm install
+$ npm run start
+```
+
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+
+Finally, you will show the complete app in [http://localhost:3000](http://localhost:3000)
